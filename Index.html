@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EtherFund - Decentralized Crowdfunding</title>
+    <link rel="stylesheet" href="style.css">
+    <script defer src="script.js"></script>
+</head>
+<body>
+    <header>
+        <h1>🌍 EtherFund</h1>
+        <p>Decentralized Web3 Crowdfunding Platform</p>
+    </header>
+
+    <section id="about">
+        <h2>About EtherFund</h2>
+        <p>EtherFund is a decentralized crowdfunding platform on Ethereum. We enable trustless, transparent donations for open-source projects, charities, and startups.</p>
+    </section>
+
+    <section id="donate">
+        <h2>Donate with MetaMask</h2>
+        <p>Connect your wallet and send ETH directly to support our platform.</p>
+        <button id="connectWallet">Connect MetaMask</button>
+        <br><br>
+        <input type="number" id="ethAmount" placeholder="Enter ETH amount" step="0.01">
+        <button id="sendDonation">Donate ETH</button>
+        <p id="walletStatus"></p>
+    </section>
+
+    <section id="contact">
+        <h2>Join Our Community</h2>
+        <p>Follow us for updates:</p>
+        <a href="https://github.com/YOUR_GITHUB" target="_blank">GitHub</a> |
+        <a href="https://twitter.com/YOUR_TWITTER" target="_blank">Twitter</a> |
+        <a href="https://discord.gg/YOUR_DISCORD" target="_blank">Discord</a>
+    </section>
+
+    <footer>
+        <p>© 2025 EtherFund - Built on Ethereum</p>
+    </footer>
+</body>
+</html>
+document.addEventListener("DOMContentLoaded", function () {
+    const connectWalletBtn = document.getElementById("connectWallet");
+    const sendDonationBtn = document.getElementById("sendDonation");
+    const walletStatus = document.getElementById("walletStatus");
+
+    let userAccount;
+    const donationAddress = "YOUR_ETH_WALLET_ADDRESS"; // Replace with your actual Ethereum address
+
+    // Connect to MetaMask
+    connectWalletBtn.addEventListener("click", async () => {
+        if (window.ethereum) {
+            try {
+                const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+                userAccount = accounts[0];
+                walletStatus.innerText = `Connected: ${userAccount}`;
+                connectWalletBtn.innerText = "Connected";
+            } catch (error) {
+                console.error(error);
+                walletStatus.innerText = "Connection failed!";
+            }
+        } else {
+            walletStatus.innerText = "MetaMask not detected! Install MetaMask.";
+        }
+    });
+
+    // Send ETH Donation
+    sendDonationBtn.addEventListener("click", async () => {
+        if (!userAccount) {
+            walletStatus.innerText = "Please connect MetaMask first!";
+            return;
+        }
+
+        let amount = document.getElementById("ethAmount").value;
+        if (!amount || isNaN(amount) || amount <= 0) {
+            walletStatus.innerText = "Enter a valid ETH amount!";
+            return;
+        }
+
+        try {
+            const transaction = await window.ethereum.request({
+                method: "eth_sendTransaction",
+                params: [{
+                    from: userAccount,
+                    to: donationAddress,
+                    value: (amount * 1e18).toString(16) // Convert ETH to Wei (Hex format)
+                }]
+            });
+
+            walletStatus.innerText = `Donation sent! TX Hash: ${transaction}`;
+        } catch (error) {
+            console.error(error);
+            walletStatus.innerText = "Transaction failed!";
+        }
+    });
+});
